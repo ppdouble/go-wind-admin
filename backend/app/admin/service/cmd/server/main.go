@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 
 	"github.com/go-kratos/kratos/v3"
 	"github.com/go-kratos/kratos/v3/transport"
@@ -148,7 +149,35 @@ func runApp() error {
 		defer cleanup()
 		return app.Run()
 	})
+	root.SetArgs(normalizeLegacyFlags(os.Args[1:]))
 	return root.Execute()
+}
+
+// normalizeLegacyFlags keeps the existing single-dash long options working
+// after the bootstrap command moved to Cobra, which otherwise reads -conf as
+// the -c shorthand with the value "onf".
+func normalizeLegacyFlags(args []string) []string {
+	longFlags := map[string]bool{
+		"conf": true, "env": true, "chost": true, "ctype": true, "daemon": true,
+	}
+	normalized := make([]string, len(args))
+	copy(normalized, args)
+	for i, arg := range normalized {
+		if arg == "--" {
+			break
+		}
+		if !strings.HasPrefix(arg, "-") || strings.HasPrefix(arg, "--") {
+			continue
+		}
+		name, value, hasValue := strings.Cut(arg[1:], "=")
+		if longFlags[name] {
+			normalized[i] = "--" + name
+			if hasValue {
+				normalized[i] += "=" + value
+			}
+		}
+	}
+	return normalized
 }
 
 // initGlobalEncryptorFromEnv 从环境变量读取加密密钥并初始化全局加密器。

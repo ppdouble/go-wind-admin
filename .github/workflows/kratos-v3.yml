@@ -42,7 +42,7 @@ jobs:
         run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o /tmp/gwa-server ./app/admin/service/cmd/server
       - name: Run migration and API contract tests
         run: |
-          go test ./app/admin/service/internal/server ./app/admin/service/internal/service \
+          go test ./app/admin/service/cmd/server ./app/admin/service/internal/server ./app/admin/service/internal/service \
             ./pkg/middleware/auth ./pkg/middleware/ent ./pkg/middleware/logging \
             ./pkg/metadata ./pkg/jsoncompat ./pkg/logbridge ./pkg/jwt
       - uses: actions/upload-artifact@v4

@@ -18,6 +18,7 @@
 | gRPC 客户端 | `DialInsecure` | `NewClient`，根据配置选择 TLS 凭据 |
 | 限流与校验 | tx7do 扩展依赖 v2 类型 | 本地 v3 适配模块；保留 Aegis BBR 行为 |
 | 认证 | v2 transport/context 读取 token | 从 v3 transport 请求头读取 token |
+| 启动参数 | `-conf` 等单横线长参数 | 兼容原参数，也接受 Cobra 的 `--conf` 写法 |
 
 [Kratos 官方 v2→v3 迁移指南](https://go-kratos.com/docs/migration/v2-to-v3/)说明了框架层接口变化。
 
@@ -31,7 +32,7 @@
 make api_v3
 go build ./app/admin/service/cmd/server
 go list -deps -f '{{.ImportPath}}' ./app/admin/service/cmd/server | grep '^github.com/go-kratos/kratos/v2/'
-go test ./app/admin/service/internal/server ./app/admin/service/internal/service \
+go test ./app/admin/service/cmd/server ./app/admin/service/internal/server ./app/admin/service/internal/service \
   ./pkg/middleware/auth ./pkg/middleware/ent ./pkg/middleware/logging \
   ./pkg/metadata ./pkg/jsoncompat ./pkg/logbridge ./pkg/jwt
 ```
