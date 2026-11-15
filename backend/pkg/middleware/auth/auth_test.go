@@ -18,9 +18,9 @@ import (
 
 	"github.com/stretchr/testify/require"
 
-	"github.com/go-kratos/kratos/v2/encoding"
-	kmeta "github.com/go-kratos/kratos/v2/metadata"
-	"github.com/go-kratos/kratos/v2/transport"
+	"github.com/go-kratos/kratos/v3/encoding"
+	kmeta "github.com/go-kratos/kratos/v3/metadata"
+	"github.com/go-kratos/kratos/v3/transport"
 
 	"github.com/tx7do/go-crud/viewer"
 	"github.com/tx7do/go-utils/trans"

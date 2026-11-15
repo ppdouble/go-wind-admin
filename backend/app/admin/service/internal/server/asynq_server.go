@@ -3,7 +3,7 @@ package server
 import (
 	"errors"
 
-	"github.com/go-kratos/kratos/v2/log"
+	"go-wind-admin/pkg/v2logcompat"
 
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	bootstrapAsynq "github.com/tx7do/kratos-bootstrap/transport/asynq"

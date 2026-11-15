@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/middleware"
+	"github.com/go-kratos/kratos/v3/transport"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/tx7do/go-utils/auditutil"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"

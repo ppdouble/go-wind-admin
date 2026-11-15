@@ -4,22 +4,18 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log/slog"
 	"strconv"
 	"strings"
 
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/tx7do/go-utils/trans"
-
-	"github.com/go-kratos/kratos/v2/encoding"
-	_ "github.com/go-kratos/kratos/v2/encoding/json"
+	"google.golang.org/protobuf/encoding/protojson"
 
 	"go-wind-admin/app/admin/service/internal/service"
 
 	storageV1 "go-wind-admin/api/gen/go/storage/service/v1"
 )
-
-var codec = encoding.GetCodec("json")
 
 func registerFileTransferServiceHandler(srv *http.Server, svc *service.FileTransferService) {
 	r := srv.Route("/")
@@ -89,15 +85,15 @@ func _FileTransferService_PostUploadFile_HTTP_Handler(svc *service.FileTransferS
 			storageObject := ctx.Request().FormValue("storageObject")
 			if storageObject != "" {
 				in.StorageObject = &storageV1.StorageObject{}
-				if err = codec.Unmarshal([]byte(storageObject), in.StorageObject); err != nil {
-					log.Errorf("Unmarshal upload file storageObject error: %v", err)
+				if err = protojson.Unmarshal([]byte(storageObject), in.StorageObject); err != nil {
+					slog.Error("Unmarshal upload file storageObject error", "err", err)
 					return err
 				}
 			}
 			//log.Debugf("Upload file storageObject: %s", storageObject)
 		} else {
 			if err = ctx.Bind(&in); err != nil {
-				log.Errorf("Bind upload file request error: %v", err)
+				slog.Error("Bind upload file request error", "err", err)
 				return err
 			}
 		}
@@ -171,15 +167,15 @@ func _FileTransferService_PutUploadFile_HTTP_Handler(svc *service.FileTransferSe
 			storageObject := ctx.Request().FormValue("storageObject")
 			if storageObject != "" {
 				in.StorageObject = &storageV1.StorageObject{}
-				if err = codec.Unmarshal([]byte(storageObject), in.StorageObject); err != nil {
-					log.Errorf("Unmarshal upload file storageObject error: %v", err)
+				if err = protojson.Unmarshal([]byte(storageObject), in.StorageObject); err != nil {
+					slog.Error("Unmarshal upload file storageObject error", "err", err)
 					return err
 				}
 			}
 			//log.Debugf("Upload file storageObject: %s", storageObject)
 		} else {
 			if err = ctx.Bind(&in); err != nil {
-				log.Errorf("Bind upload file request error: %v", err)
+				slog.Error("Bind upload file request error", "err", err)
 				return err
 			}
 		}

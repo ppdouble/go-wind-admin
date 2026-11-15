@@ -15,7 +15,7 @@ ROOT_DIR	:= $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 
 SRCS_MK		:= $(foreach dir, app, $(wildcard $(dir)/*/*/Makefile))
 
-.PHONY: help gen ent build api openapi init all vendor dep test cover vet lint docker \
+.PHONY: help gen ent build api api_v3 openapi init all vendor dep test cover vet lint docker \
 		register install-dev install-prod docker-up docker-down docker-libs pm2-deploy
 
 # show environment variables
@@ -31,8 +31,8 @@ init: plugin cli
 plugin:
 	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
-	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v3@v3.0.0-20261026152050-dd0fb7df1e32
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v3@v3.0.0-20261026152050-dd0fb7df1e32
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/envoyproxy/protoc-gen-validate@latest
 	go install github.com/tx7do/go-wind-toolkit/protoc-gen-go-redact@latest
@@ -40,7 +40,7 @@ plugin:
 
 # install cli tools
 cli:
-	go install github.com/go-kratos/kratos/cmd/kratos/v2@latest
+	go install github.com/go-kratos/kratos/cmd/kratos/v3@latest
 	go install github.com/google/gnostic@latest
 	go install github.com/bufbuild/buf/cmd/buf@latest
 	go install entgo.io/ent/cmd/ent@latest
@@ -88,7 +88,13 @@ register:
 # generate protobuf api go code
 api:
 	cd api && \
-	buf generate
+	buf generate && \
+	buf generate --template buf.kratos-v3.gen.yaml
+
+# Regenerate Kratos v3 Go HTTP and error bindings without replacing other API outputs.
+api_v3:
+	cd api && \
+	buf generate --template buf.kratos-v3.gen.yaml
 
 # generate protobuf api OpenAPI v3 docs.
 openapi:

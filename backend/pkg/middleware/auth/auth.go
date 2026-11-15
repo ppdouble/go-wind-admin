@@ -2,17 +2,17 @@ package auth
 
 import (
 	"context"
+	"strings"
 
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/transport"
-	http "github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/middleware"
+	"github.com/go-kratos/kratos/v3/transport"
+	http "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/tx7do/go-crud/viewer"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
 	"go.opentelemetry.io/otel/trace"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 
-	authnEngine "github.com/tx7do/kratos-authn/engine"
 	authzEngine "github.com/tx7do/kratos-authz/engine"
 
 	appViewer "go-wind-admin/pkg/entgo/viewer"
@@ -44,10 +44,14 @@ func Server(opts ...Option) middleware.Middleware {
 				return nil, ErrWrongContext
 			}
 
-			token, err := authnEngine.AuthFromMD(ctx, authnEngine.BearerWord, authnEngine.ContextTypeKratosMetaData)
-			if err != nil {
+			// The v2 authn helper reads a v2 transport context. Read the
+			// v3 transport header directly to preserve Bearer authentication.
+			parts := strings.SplitN(tr.RequestHeader().Get("Authorization"), " ", 2)
+			if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || parts[1] == "" {
 				return nil, ErrMissingBearerToken
 			}
+			token := parts[1]
+			var err error
 
 			if op.accessTokenChecker == nil {
 				op.log.Errorf(ctx, "auth middleware: access token checker is not configured")

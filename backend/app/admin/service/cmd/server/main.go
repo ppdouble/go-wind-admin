@@ -6,15 +6,19 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3"
+	"github.com/go-kratos/kratos/v3/transport"
+	"github.com/go-kratos/kratos/v3/transport/http"
+	"github.com/spf13/cobra"
 	"github.com/tx7do/kratos-transport/transport/asynq"
 	"github.com/tx7do/kratos-transport/transport/sse"
 
 	conf "github.com/tx7do/kratos-bootstrap/api/gen/go/conf/v1"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
+	bConfig "github.com/tx7do/kratos-bootstrap/config"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
+	bRegistry "github.com/tx7do/kratos-bootstrap/registry"
+	"github.com/tx7do/kratos-bootstrap/tracer"
 	//_ "github.com/tx7do/kratos-bootstrap/config/consul"
 	//_ "github.com/tx7do/kratos-bootstrap/config/etcd"
 	//_ "github.com/tx7do/kratos-bootstrap/config/kubernetes"
@@ -41,6 +45,8 @@ import (
 
 	appCrypto "github.com/tx7do/go-utils/crypto"
 	"github.com/tx7do/go-utils/netutil"
+	_ "go-wind-admin/pkg/jsoncompat"
+	"go-wind-admin/pkg/logbridge"
 	"go-wind-admin/pkg/passwordcrypto"
 	"go-wind-admin/pkg/serviceid"
 )
@@ -54,7 +60,7 @@ func newApp(
 	hs *http.Server,
 	as *asynq.Server,
 	ss *sse.Server,
-) *kratos.App {
+) (*kratos.App, error) {
 	// asynq / sse 在配置缺失时返回 nil（typed-nil）。
 	// kratos 的 app.Run() 会对每个 server 调 Start()/Stop()，
 	// 把 typed-nil 指针当作 transport.Server 解引用会 panic。
@@ -66,7 +72,34 @@ func newApp(
 	if ss != nil {
 		servers = append(servers, ss)
 	}
-	return bootstrap.NewApp(ctx, servers...)
+	logger := slog.New(logbridge.NewHandler(ctx.GetLogger()))
+	slog.SetDefault(logger)
+	opts := []kratos.Option{kratos.Logger(logger), kratos.Server(servers...)}
+	info := ctx.GetAppInfo()
+	if info.Metadata != nil {
+		opts = append(opts, kratos.Metadata(info.Metadata))
+	}
+	if info.AppId != "" {
+		name := info.Project + "/" + info.AppId
+		if registry := ctx.GetConfig().GetRegistry(); registry != nil && registry.GetType() != "" {
+			name = bRegistry.NormalizeForRegistry(name, registry.GetType())
+		}
+		opts = append(opts, kratos.Name(name))
+	}
+	if info.Version != "" {
+		opts = append(opts, kratos.Version(info.Version))
+	}
+	if info.InstanceId != "" {
+		opts = append(opts, kratos.ID(info.InstanceId))
+	}
+	registrar, err := bRegistry.NewRegistrar(ctx.GetConfig().GetRegistry())
+	if err != nil {
+		return nil, err
+	}
+	if registrar != nil {
+		opts = append(opts, kratos.Registrar(registrar))
+	}
+	return kratos.New(opts...), nil
 }
 
 func runApp() error {
@@ -84,15 +117,38 @@ func runApp() error {
 		slog.Warn("⚠️ GOWIND_PASSWORD_RSA_PRIVATE_KEY 未配置，口令传输解密仍在使用内置开发私钥，生产环境必须替换")
 	}
 
-	ctx := bootstrap.NewContext(
-		context.Background(),
-		&conf.AppInfo{
-			Project: serviceid.ProjectName,
-			AppId:   serviceid.AdminService,
-			Version: version,
-		},
-	)
-	return bootstrap.RunApp(ctx, initApp)
+	info := &conf.AppInfo{
+		Project: serviceid.ProjectName,
+		AppId:   serviceid.AdminService,
+		Version: version,
+	}
+	flags := bootstrap.NewCommandFlags()
+	root := bootstrap.NewRootCmd(flags, func(_ *cobra.Command, _ []string) error {
+		base := bootstrap.NewContext(context.Background(), info)
+		base.PrintAppInfo()
+		if err := bConfig.LoadBootstrapConfig(flags.Conf); err != nil {
+			return err
+		}
+		cfg := bConfig.GetBootstrapConfig()
+		if cfg == nil {
+			return fmt.Errorf("bootstrap config is nil")
+		}
+		logger := bLogger.NewLoggerProvider(cfg.Logger, base.GetAppInfo())
+		if logger == nil {
+			return fmt.Errorf("init logger failed")
+		}
+		ctx := bootstrap.NewContextWithParam(context.Background(), base.GetAppInfo(), cfg, logger)
+		if err := tracer.NewTracerProvider(ctx.Context(), cfg.Trace, ctx.GetAppInfo()); err != nil {
+			return err
+		}
+		app, cleanup, err := initApp(ctx)
+		if err != nil {
+			return err
+		}
+		defer cleanup()
+		return app.Run()
+	})
+	return root.Execute()
 }
 
 // initGlobalEncryptorFromEnv 从环境变量读取加密密钥并初始化全局加密器。

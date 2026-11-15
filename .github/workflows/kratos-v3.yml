@@ -1,0 +1,52 @@
+name: kratos-v3
+
+# No per-commit run: GitHub Actions minutes are limited on this fork.
+# A workflow-file change on the migration branch runs a validation once;
+# otherwise trigger deliberately with a kratos-v3-ci-* tag. workflow_dispatch becomes available if this file lands
+# on the default branch.
+on:
+  push:
+    branches: [codex/kratos-v3]
+    paths: ['.github/workflows/kratos-v3.yml']
+    tags:
+      - 'kratos-v3-ci-*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kratos-v3-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: backend/go.mod
+          cache-dependency-path: backend/go.sum
+      - name: Verify dependency graph is v3 only
+        run: |
+          if go list -deps -f '{{.ImportPath}}' ./app/admin/service/cmd/server | grep -q '^github.com/go-kratos/kratos/v2/'; then
+            echo 'Kratos v2 still present in the server binary' >&2
+            exit 1
+          fi
+      - name: Build Linux server
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -o /tmp/gwa-server ./app/admin/service/cmd/server
+      - name: Run migration and API contract tests
+        run: |
+          go test ./app/admin/service/internal/server ./app/admin/service/internal/service \
+            ./pkg/middleware/auth ./pkg/middleware/ent ./pkg/middleware/logging \
+            ./pkg/metadata ./pkg/jsoncompat ./pkg/logbridge ./pkg/jwt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gwa-server-linux-amd64
+          path: /tmp/gwa-server
+          retention-days: 3

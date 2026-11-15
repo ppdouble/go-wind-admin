@@ -9,7 +9,6 @@ require (
 	github.com/expr-lang/expr v1.17.8
 	github.com/getkin/kin-openapi v0.149.0
 	github.com/glebarez/sqlite v1.11.0
-	github.com/go-kratos/kratos/v2 v2.9.2
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/google/gnostic v0.7.1
@@ -84,6 +83,8 @@ require (
 	github.com/chromedp/cdproto v0.157.8 // indirect
 	github.com/chromedp/chromedp v0.21.0 // indirect
 	github.com/go-json-experiment/json v0.0.0-20260213210345-44df1a37e875 // indirect
+	github.com/go-kratos/kratos/contrib/otel/v3 v3.0.0-20261026152050-dd0fb7df1e32 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/tx7do/go-crud/vector v0.0.1 // indirect
 	github.com/tx7do/kratos-authz/engine/casbin v1.1.12 // indirect
 	github.com/tx7do/kratos-authz/engine/opa v1.1.15 // indirect
@@ -101,7 +102,6 @@ require (
 	cloud.google.com/go/bigquery v1.83.0 // indirect
 	cloud.google.com/go/compute/metadata v0.9.0 // indirect
 	cloud.google.com/go/iam v1.13.0 // indirect
-	dario.cat/mergo v1.0.2 // indirect
 	filippo.io/edwards25519 v1.2.0 // indirect
 	github.com/ClickHouse/ch-go v0.74.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.48.0 // indirect
@@ -137,6 +137,7 @@ require (
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.8.0 // indirect
 	github.com/go-kratos/aegis v0.2.0 // indirect
+	github.com/go-kratos/kratos/v3 v3.0.0
 	github.com/go-logr/logr v1.4.4 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-ole/go-ole v1.3.0 // indirect
@@ -205,7 +206,7 @@ require (
 	github.com/olekukonko/tablewriter v1.1.4 // indirect
 	github.com/open-policy-agent/opa v1.15.2 // indirect
 	github.com/openzipkin/zipkin-go v0.4.3 // indirect
-	github.com/oschwald/geoip2-golang v1.13.0 // indirect
+	github.com/oschwald/geoip2-golang v1.13.0
 	github.com/oschwald/maxminddb-golang v1.13.1 // indirect
 	github.com/paulmach/orb v0.13.0 // indirect
 	github.com/philhofer/fwd v1.2.0 // indirect
@@ -233,7 +234,7 @@ require (
 	github.com/sirupsen/logrus v1.10.2 // indirect
 	github.com/sony/sonyflake v1.3.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
-	github.com/spf13/cobra v1.10.2 // indirect
+	github.com/spf13/cobra v1.10.2
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/swaggest/swgui v1.8.5 // indirect
 	github.com/tchap/go-patricia/v2 v2.3.3 // indirect
@@ -253,9 +254,9 @@ require (
 	github.com/tx7do/go-utils/printrender v0.1.1
 	github.com/tx7do/go-wind-plugins/encoding v0.0.1 // indirect
 	github.com/tx7do/go-wind-plugins/encoding/json v0.0.1 // indirect
-	github.com/tx7do/kratos-bootstrap/config v0.2.3 // indirect
-	github.com/tx7do/kratos-bootstrap/registry v0.2.3 // indirect
-	github.com/tx7do/kratos-bootstrap/tracer v0.1.5 // indirect
+	github.com/tx7do/kratos-bootstrap/config v0.2.3
+	github.com/tx7do/kratos-bootstrap/registry v0.2.3
+	github.com/tx7do/kratos-bootstrap/tracer v0.1.5
 	github.com/tx7do/kratos-transport/broker v1.3.3 // indirect
 	github.com/tx7do/kratos-transport/tracing v1.1.2 // indirect
 	github.com/tx7do/kratos-transport/transport v1.3.4 // indirect
@@ -326,3 +327,27 @@ require (
 	modernc.org/memory v1.12.1 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace (
+	github.com/tx7do/kratos-authn => ./third_party/tx7do/kratos-authn
+	github.com/tx7do/kratos-authn/engine/jwt => ./third_party/tx7do/kratos-authn/engine/jwt
+	github.com/tx7do/kratos-authz/engine/casbin => ./third_party/tx7do/kratos-authz/engine/casbin
+	github.com/tx7do/kratos-authz/engine/opa => ./third_party/tx7do/kratos-authz/engine/opa
+	github.com/tx7do/kratos-authz/middleware => ./third_party/tx7do/kratos-authz/middleware
+	github.com/tx7do/kratos-bootstrap/bootstrap => ./third_party/tx7do/kratos-bootstrap/bootstrap
+	github.com/tx7do/kratos-bootstrap/cache/redis => ./third_party/tx7do/kratos-bootstrap/cache/redis
+	github.com/tx7do/kratos-bootstrap/config => ./third_party/tx7do/kratos-bootstrap/config
+	github.com/tx7do/kratos-bootstrap/database/ent => ./third_party/tx7do/kratos-bootstrap/database/ent
+	github.com/tx7do/kratos-bootstrap/logger => ./third_party/tx7do/kratos-bootstrap/logger
+	github.com/tx7do/kratos-bootstrap/oss/minio => ./third_party/tx7do/kratos-bootstrap/oss/minio
+	github.com/tx7do/kratos-bootstrap/registry => ./third_party/tx7do/kratos-bootstrap/registry
+	github.com/tx7do/kratos-bootstrap/rpc => ./third_party/tx7do/kratos-bootstrap/rpc
+	github.com/tx7do/kratos-transport/broker => ./third_party/tx7do/kratos-transport/broker
+	github.com/tx7do/kratos-transport/transport/asynq => ./third_party/tx7do/kratos-transport/transport/asynq
+	github.com/tx7do/kratos-transport/transport/keepalive => ./third_party/tx7do/kratos-transport/transport/keepalive
+	github.com/tx7do/kratos-transport/transport/sse => ./third_party/tx7do/kratos-transport/transport/sse
+)
+
+replace github.com/tx7do/go-utils/netutil => ./third_party/tx7do/go-utils/netutil
+
+replace github.com/tx7do/go-utils/jwtutil => ./third_party/tx7do/go-utils/jwtutil

@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/go-kratos/kratos/v2"
-	"github.com/tx7do/go-utils/geoip/geolite"
+	"github.com/go-kratos/kratos/v3"
+	"go-wind-admin/pkg/geolitecompat"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 
 	"github.com/tx7do/go-utils/authorizer"
@@ -390,5 +390,10 @@ func initApp(ctx *bootstrap.Context) (*kratos.App, func(), error) {
 
 	sseServer := server.NewSseServer(ctx, internalMessageService, aiChatService, aaAiAgentService)
 
-	return newApp(ctx, restServer, asynqServer, sseServer), rollback, nil
+	app, err := newApp(ctx, restServer, asynqServer, sseServer)
+	if err != nil {
+		rollback()
+		return nil, nil, err
+	}
+	return app, rollback, nil
 }

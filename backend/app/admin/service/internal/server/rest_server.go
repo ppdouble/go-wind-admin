@@ -2,18 +2,18 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	nethttp "net/http"
 	"strings"
 	"time"
 
-	"github.com/go-kratos/kratos/v2/log"
-	"github.com/go-kratos/kratos/v2/middleware"
-	"github.com/go-kratos/kratos/v2/middleware/logging"
-	"github.com/go-kratos/kratos/v2/middleware/recovery"
-	"github.com/go-kratos/kratos/v2/middleware/selector"
-	"github.com/go-kratos/kratos/v2/middleware/validate"
-	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/middleware"
+	"github.com/go-kratos/kratos/v3/middleware/logging"
+	"github.com/go-kratos/kratos/v3/middleware/recovery"
+	"github.com/go-kratos/kratos/v3/middleware/selector"
+	"github.com/go-kratos/kratos/v3/middleware/validate"
+	"github.com/go-kratos/kratos/v3/transport"
+	"github.com/go-kratos/kratos/v3/transport/http"
 
 	authz "github.com/tx7do/kratos-authz/middleware"
 
@@ -33,6 +33,7 @@ import (
 	"github.com/tx7do/go-crud/viewer"
 	"github.com/tx7do/go-utils/authorizer"
 	"github.com/tx7do/go-utils/ossutil"
+	"go-wind-admin/pkg/logbridge"
 	"go-wind-admin/pkg/middleware/auth"
 	applogging "go-wind-admin/pkg/middleware/logging"
 	"go-wind-admin/pkg/task"
@@ -61,7 +62,7 @@ func NewRestMiddleware(
 	// 令进程内存暴涨（并发即 OOM）。上限 = MaxUploadSize + 1MB（multipart 编码余量）。
 	ms = append(ms, uploadBodyLimit())
 	ms = append(ms, securityHeaders())
-	ms = append(ms, logging.Server(bLogger.AsKratosLogger(ctx.GetLogger())))
+	ms = append(ms, logging.Server(slog.New(logbridge.NewHandler(ctx.GetLogger()))))
 
 	// 审计日志异步化（docs/audit-log-producer-design.md）：五个审计回调先经 asynq
 	// 入队（at-least-once），入队失败或 asynq 未配置时回退同步落库——宁可慢不可丢。
@@ -159,7 +160,9 @@ func NewRestMiddleware(
 		),
 		authz.Server(newEvalLoggingEngine(authorizer.Engine(), policyEvaluationLogRepo, auditEnqueuer)),
 	).
-		Match(rpc.NewRestWhiteListMatcher()).
+		Match(func(ctx context.Context, operation string) bool {
+			return rpc.NewRestWhiteListMatcher()(ctx, operation)
+		}).
 		Build(),
 	)
 
@@ -417,7 +420,7 @@ func NewRestServer(
 
 	if authorizer != nil {
 		if err = authorizer.ResetPolicies(viewer.WithSystemContext(ctx.Context())); err != nil {
-			log.Errorf("reset policies error: %v", err)
+			slog.Error("reset policies error", "err", err)
 		}
 	}
 

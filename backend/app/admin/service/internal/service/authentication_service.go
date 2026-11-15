@@ -9,7 +9,7 @@ import (
 
 	"github.com/tx7do/go-crud/viewer"
 	"github.com/tx7do/go-utils/captcha"
-	"github.com/tx7do/go-utils/geoip/geolite"
+	"go-wind-admin/pkg/geolitecompat"
 	"github.com/tx7do/go-utils/timeutil"
 	"github.com/tx7do/go-utils/trans"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
@@ -20,8 +20,8 @@ import (
 	"go-wind-admin/app/admin/service/internal/data"
 	"go-wind-admin/app/admin/service/internal/data/ent/privacy"
 
-	ktransport "github.com/go-kratos/kratos/v2/transport"
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	ktransport "github.com/go-kratos/kratos/v3/transport"
+	khttp "github.com/go-kratos/kratos/v3/transport/http"
 
 	adminV1 "go-wind-admin/api/gen/go/admin/service/v1"
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"

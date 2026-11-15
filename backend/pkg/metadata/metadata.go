@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/base64"
 
-	"github.com/go-kratos/kratos/v2/encoding"
-	_ "github.com/go-kratos/kratos/v2/encoding/json"
-	_ "github.com/go-kratos/kratos/v2/encoding/proto"
-	"github.com/go-kratos/kratos/v2/metadata"
+	"github.com/go-kratos/kratos/v3/encoding"
+	_ "github.com/go-kratos/kratos/v3/encoding/json"
+	_ "github.com/go-kratos/kratos/v3/encoding/proto"
+	"github.com/go-kratos/kratos/v3/metadata"
 
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 )

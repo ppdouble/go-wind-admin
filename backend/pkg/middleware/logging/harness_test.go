@@ -29,8 +29,8 @@ import (
 	"testing"
 	"time"
 
-	kerrors "github.com/go-kratos/kratos/v2/errors"
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	kerrors "github.com/go-kratos/kratos/v3/errors"
+	khttp "github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/require"
 	crudviewer "github.com/tx7do/go-crud/viewer"

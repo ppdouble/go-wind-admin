@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/go-kratos/kratos/v3/transport/http"
 	"github.com/tx7do/go-utils/auditutil"
 
 	"github.com/tx7do/go-utils/netutil"

@@ -12,8 +12,8 @@ import (
 	"sync"
 	"time"
 
-	ktransport "github.com/go-kratos/kratos/v2/transport"
-	khttp "github.com/go-kratos/kratos/v2/transport/http"
+	ktransport "github.com/go-kratos/kratos/v3/transport"
+	khttp "github.com/go-kratos/kratos/v3/transport/http"
 
 	"github.com/tx7do/go-utils/id"
 	"github.com/tx7do/go-utils/trans"

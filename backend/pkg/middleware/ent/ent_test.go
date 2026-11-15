@@ -17,9 +17,9 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/go-kratos/kratos/v2/encoding"
-	_ "github.com/go-kratos/kratos/v2/encoding/proto"
-	"github.com/go-kratos/kratos/v2/metadata"
+	"github.com/go-kratos/kratos/v3/encoding"
+	_ "github.com/go-kratos/kratos/v3/encoding/proto"
+	"github.com/go-kratos/kratos/v3/metadata"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel/trace"
 

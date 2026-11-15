@@ -8,7 +8,7 @@ import (
 	authenticationV1 "go-wind-admin/api/gen/go/authentication/service/v1"
 	identityV1 "go-wind-admin/api/gen/go/identity/service/v1"
 
-	"github.com/go-kratos/kratos/v2/metadata"
+	"github.com/go-kratos/kratos/v3/metadata"
 	"github.com/stretchr/testify/assert"
 )
 

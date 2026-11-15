@@ -7,7 +7,7 @@ import (
 	"github.com/tx7do/go-utils/captcha"
 	"github.com/tx7do/go-utils/password"
 
-	klog "github.com/go-kratos/kratos/v2/log"
+	klog "go-wind-admin/pkg/v2logcompat"
 	"github.com/tx7do/kratos-bootstrap/bootstrap"
 	redisClient "github.com/tx7do/kratos-bootstrap/cache/redis"
 	bLogger "github.com/tx7do/kratos-bootstrap/logger"
