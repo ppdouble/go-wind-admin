@@ -40,3 +40,5 @@ go test ./app/admin/service/cmd/server ./app/admin/service/internal/server ./app
 第三条命令应无输出。`.github/workflows/kratos-v3.yml` 在 Linux 构建服务端、检查依赖图并运行上述定向测试；构建产物只保留 3 天。为限制 Actions 用量，迁移分支普通代码提交不自动运行该工作流。首次加入或修改工作流文件时运行一次，之后可推送 `kratos-v3-ci-*` 标签按需触发。`workflow_dispatch` 仅在工作流文件存在于默认分支时可从 GitHub 网页运行。上游原有工作流保留其触发条件；涉及其监听路径的迁移提交仍可能运行一次。
 
 完整 `go test ./...` 仍有待解决的测试失败。迁移前的 `main` 提交 `534f6852` 与此前 v3 验证均复现：`internal/data` 的六个 SQLite `*_ExcludeExpired` 测试返回过期关联，`pkg/sseevent/TestPublishedEventsReachAllFrontends` 查找的前端 `event.ts` 路径不存在。相关实现和测试在迁移中没有修改，因此这些失败尚不能归因于 Kratos v3；其根因仍需单独确认。定向 CI 通过不等于全量测试通过。
+
+现有 `sso-smoke` 工作流在本分支也未通过。修复旧启动参数兼容后，后端启动、管理员登录和 SSO 授权 URL 均已通过，但 Keycloak 登录步骤报“login form action not found”。原因是工作流将 `SSO_OIDC_REDIRECT_URL` 设为端口 `15889`，而同仓库的 Keycloak 初始化脚本只登记 `15888`、`15777`、`15666`；Keycloak 返回错误页而非登录表单。这两处配置均来自迁移前的 `main`，需单独对齐并复测，不属于 Kratos v3 API 适配结果。
